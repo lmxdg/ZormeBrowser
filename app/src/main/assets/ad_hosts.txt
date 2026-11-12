@@ -1,0 +1,94 @@
+# Zorme 广告与追踪域名拦截表
+# 每行一个域名，匹配自身及所有子域名；@@ 开头为白名单
+# ---- Google 广告 / 统计 ----
+doubleclick.net
+googlesyndication.com
+googleadservices.com
+googletagservices.com
+google-analytics.com
+googletagmanager.com
+adservice.google.com
+pagead2.googlesyndication.com
+partner.googleadservices.com
+2mdn.net
+adsensecustomsearchads.com
+# ---- 国内广告联盟 ----
+cpro.baidu.com
+pos.baidu.com
+hm.baidu.com
+eclick.baidu.com
+mobads.baidu.com
+masdk.baidu.com
+union.baidu.com
+tanx.com
+alimama.com
+simba.taobao.com
+mmstat.com
+gdt.qq.com
+e.qq.com
+adsview.qq.com
+l.qq.com
+pingfore.qq.com
+adx.360.cn
+show.360.cn
+s.360.cn
+union.sogou.com
+ads.sogou.com
+hitrace.sogou.com
+# ---- 第三方统计 ----
+umeng.com
+umeng.co
+cnzz.com
+51.la
+talkingdata.com
+talkingdata.net
+growingio.com
+sensorsdata.cn
+sensorsdata.com
+mc.yandex.ru
+statcounter.com
+quantserve.com
+scorecardresearch.com
+chartbeat.com
+newrelic.com
+appsflyer.com
+adjust.com
+branch.io
+# ---- 移动广告平台 ----
+applovin.com
+adcolony.com
+unityads.unity3d.com
+vungle.com
+ironsrc.com
+chartboost.com
+inmobi.com
+mopub.com
+pangolin-sdk-toutiao.com
+pangle.io
+mintegral.com
+# ---- 程序化广告 ----
+adnxs.com
+rubiconproject.com
+pubmatic.com
+openx.net
+criteo.com
+criteo.net
+taboola.com
+outbrain.com
+moatads.com
+amazon-adsystem.com
+spotxchange.com
+teads.tv
+smartadserver.com
+adition.com
+# ---- 弹窗 / 劫持常见 ----
+popads.net
+popcash.net
+propellerads.com
+onclickads.net
+adcash.com
+# ---- 白名单（以免误伤）----
+@@www.baidu.com
+@@www.google.com
+@@www.bilibili.com
+@@github.com

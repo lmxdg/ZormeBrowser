@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="bar_height">56dp</dimen>
+    <dimen name="page_padding">20dp</dimen>
+    <dimen name="card_radius">18dp</dimen>
+</resources>

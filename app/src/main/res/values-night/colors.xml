@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#FF08080A</color>
+    <color name="bg_elevated">#FF101014</color>
+    <color name="surface">#FF121216</color>
+    <color name="surface_alt">#FF1A1A20</color>
+    <color name="text_primary">#FFF3F3F6</color>
+    <color name="text_secondary">#FF8E8E99</color>
+    <color name="text_tertiary">#FF64646E</color>
+    <color name="divider">#FF222229</color>
+    <color name="icon">#FFF3F3F6</color>
+    <color name="icon_muted">#FF7E7E89</color>
+    <color name="accent">#FFFFFFFF</color>
+    <color name="pill">#FF1B1B22</color>
+    <color name="pill_pressed">#FF26262F</color>
+    <color name="scrim">#B3000000</color>
+    <color name="sheet">#FF111115</color>
+    <color name="progress">#FFF5F5F7</color>
+    <color name="icon_background">#FF000000</color>
+    <color name="danger">#FFFF6B6B</color>
+    <color name="home_glow">#22FFFFFF</color>
+</resources>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/error_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="36dp"
+    android:visibility="gone">
+
+    <TextView
+        android:layout_width="54dp"
+        android:layout_height="54dp"
+        android:background="@drawable/bg_error_mark"
+        android:gravity="center"
+        android:text="Z"
+        android:textColor="#FFFFFFFF"
+        android:textSize="28sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="22dp"
+        android:text="@string/error_title"
+        android:textColor="@color/text_primary"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/error_desc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:lineSpacingExtra="5dp"
+        android:text="@string/error_hint"
+        android:textColor="@color/text_tertiary"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/error_retry"
+        android:layout_width="wrap_content"
+        android:layout_height="44dp"
+        android:layout_marginTop="26dp"
+        android:background="@drawable/bg_pill_ripple"
+        android:gravity="center"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp"
+        android:text="@string/retry"
+        android:textColor="@color/text_primary"
+        android:textSize="14sp" />
+</LinearLayout>
