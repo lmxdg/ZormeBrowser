@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.Icon;
@@ -195,6 +197,8 @@ public class MainActivity extends AppCompatActivity {
             showPageActions();
             return true;
         });
+        // 锁图标：查看网站 SSL 证书
+        addressIcon.setOnClickListener(v -> showSslInfo());
         addressAction.setOnClickListener(v -> {
             BrowserTab t = current();
             if (t == null) return;
@@ -424,6 +428,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void attachCurrent() {
+        // 切换前：对仍附着在容器里的旧标签保存实时截图（覆盖新建/切换等所有路径）
+        if (webContainer.getChildCount() > 0) {
+            View old = webContainer.getChildAt(0);
+            if (old instanceof WebView) {
+                BrowserTab leaving = tabOf((WebView) old);
+                if (leaving != null && leaving != current()) capturePreview(leaving);
+            }
+        }
         BrowserTab t = current();
         webContainer.removeAllViews();
         if (t != null) {
@@ -445,6 +457,33 @@ public class MainActivity extends AppCompatActivity {
         hideTabs();
     }
 
+    /** 用 WebView 当前视口内容生成标签预览图（主线程调用） */
+    private void capturePreview(BrowserTab tab) {
+        if (tab == null || tab.showingHome || tab.webView == null) return;
+        Bitmap bmp = null;
+        try {
+            int w = tab.webView.getWidth(), h = tab.webView.getHeight();
+            if (w <= 0 || h <= 0) return;
+            float scale = Math.min(1f, 240f / w);
+            bmp = Bitmap.createBitmap(
+                    Math.max(1, (int) (w * scale)), Math.max(1, (int) (h * scale)),
+                    Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bmp);
+            canvas.scale(scale, scale);
+            tab.webView.draw(canvas);
+            tab.recyclePreview();
+            tab.preview = bmp;
+        } catch (Exception e) {
+            // draw 失败时回收位图，回退到色块 + 字母展示
+            if (bmp != null && !bmp.isRecycled()) bmp.recycle();
+        }
+    }
+
+    /** 关闭指定标签（仅供测试与内部使用） */
+    public void closeTabByIndexForTest(int index) {
+        closeTab(index);
+    }
+
     private void closeTab(int index) {
         TabManager tm = TabManager.get();
         if (index < 0 || index >= tm.tabs.size()) return;
@@ -458,6 +497,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception ignored) {
             }
         }
+        t.recyclePreview();
         tm.remove(index);
         if (tm.size() == 0) {
             createTab(false, null);
@@ -496,6 +536,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void showTabs() {
         hideKeyboard();
+        // 打开标签管理时刷新当前页面的实时截图
+        capturePreview(current());
         updateTabsTitle();
         tabAdapter.notifyDataSetChanged();
         tabsOverlay.setVisibility(View.VISIBLE);
@@ -625,6 +667,34 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /** 查看当前网站的 SSL/TLS 证书信息 */
+    private void showSslInfo() {
+        BrowserTab t = current();
+        if (t == null || t.showingHome || t.url == null
+                || t.url.startsWith("about:") || t.url.isEmpty()) {
+            ZDialog.alert(this, "网站证书", "当前页面没有证书信息。");
+            return;
+        }
+        String url = t.url;
+        if (!url.startsWith("https://")) {
+            ZDialog.alert(this, "网站证书",
+                    "此网站未使用加密连接（HTTP）\n\n" + Utils.displayUrl(url)
+                            + "\n\n数据将以明文传输，可能被第三方窃取或篡改，请谨慎输入账号、密码等敏感信息。");
+            return;
+        }
+        ZDialog.toast(this, "正在获取证书…");
+        SslInfo.fetch(url, (ok, error, info) -> {
+            if (isFinishing()) return;
+            if (!ok) {
+                ZDialog.alert(this, "网站证书",
+                        "无法获取 " + Utils.displayUrl(url) + " 的证书：\n\n" + error);
+                return;
+            }
+            String valid = info.validDaysLeft >= 0 ? "连接安全" : "证书已过期";
+            ZDialog.alert(this, valid + " · TLS 证书", info.summary());
+        });
     }
 
     private void refreshSuggestions(String query) {
@@ -780,6 +850,10 @@ public class MainActivity extends AppCompatActivity {
         addMenuTile(R.drawable.ic_reader, "阅读模式", () -> {
             hideMenu();
             readerMode();
+        });
+        addMenuTile(R.drawable.ic_lock, "网站证书", () -> {
+            hideMenu();
+            showSslInfo();
         });
         addMenuTile(R.drawable.ic_share, "分享", () -> {
             hideMenu();
@@ -1245,6 +1319,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         if (!isChangingConfigurations()) {
             Session.save(this);
+            for (BrowserTab t : TabManager.get().tabs) t.recyclePreview();
             TabManager.get().destroyAll();
         }
     }

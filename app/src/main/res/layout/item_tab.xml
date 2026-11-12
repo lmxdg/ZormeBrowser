@@ -58,6 +58,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
+        <ImageView
+            android:id="@+id/tab_item_shot"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/close"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
+
         <TextView
             android:id="@+id/tab_item_letter"
             android:layout_width="match_parent"
@@ -66,6 +74,11 @@
             android:textColor="#F2FFFFFF"
             android:textSize="30sp"
             android:textStyle="bold" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_tab_preview_border" />
     </FrameLayout>
 
     <TextView

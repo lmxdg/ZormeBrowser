@@ -52,6 +52,15 @@ public class TabAdapter extends RecyclerView.Adapter<TabAdapter.VH> {
         }
         bg.setCornerRadius(Utils.dp(h.itemView.getContext(), 12));
         h.preview.setBackground(bg);
+        // 有实时截图时显示截图，否则显示色块 + 字母
+        if (t.preview != null && !t.preview.isRecycled()) {
+            h.shot.setImageBitmap(t.preview);
+            h.shot.setVisibility(View.VISIBLE);
+            h.letter.setVisibility(View.GONE);
+        } else {
+            h.shot.setVisibility(View.GONE);
+            h.letter.setVisibility(View.VISIBLE);
+        }
         h.itemView.setOnClickListener(v -> {
             int pos = h.getBindingAdapterPosition();
             if (pos != RecyclerView.NO_POSITION && listener != null) listener.onSelect(pos);
@@ -75,7 +84,7 @@ public class TabAdapter extends RecyclerView.Adapter<TabAdapter.VH> {
     static class VH extends RecyclerView.ViewHolder {
         final TextView title, url, badge, letter;
         final View preview;
-        final ImageView close;
+        final ImageView close, shot;
 
         VH(@NonNull View itemView) {
             super(itemView);
@@ -84,6 +93,7 @@ public class TabAdapter extends RecyclerView.Adapter<TabAdapter.VH> {
             badge = itemView.findViewById(R.id.tab_item_badge);
             letter = itemView.findViewById(R.id.tab_item_letter);
             preview = itemView.findViewById(R.id.tab_item_preview);
+            shot = itemView.findViewById(R.id.tab_item_shot);
             close = itemView.findViewById(R.id.tab_item_close);
         }
     }
