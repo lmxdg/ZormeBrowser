@@ -43,15 +43,23 @@
             android:textSize="17sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/dialog_message"
+        <ScrollView
+            android:id="@+id/dialog_message_scroll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:lineSpacingExtra="4dp"
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp"
-            android:visibility="gone" />
+            android:overScrollMode="never"
+            android:scrollbars="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/dialog_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lineSpacingExtra="4dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+        </ScrollView>
 
         <EditText
             android:id="@+id/dialog_input"

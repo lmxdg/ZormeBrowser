@@ -266,7 +266,7 @@ public class Features105Test {
         ShadowLooper.idleMainLooper();
         a.findViewById(R.id.btn_menu).performClick();
         GridLayout grid = a.findViewById(R.id.menu_grid);
-        assertEquals(15, grid.getChildCount());
+        assertEquals(16, grid.getChildCount());
         boolean hasSource = false, hasNetlog = false;
         for (int i = 0; i < grid.getChildCount(); i++) {
             TextView label = grid.getChildAt(i).findViewById(R.id.menu_label);

@@ -23,6 +23,9 @@ public class Prefs {
     public static final String KEY_RECORD_HISTORY = "record_history";
     public static final String KEY_TEXT_ZOOM = "text_zoom";
     public static final String KEY_OPEN_HOME = "open_home";
+    public static final String KEY_AI_BASE = "ai_base";
+    public static final String KEY_AI_KEY = "ai_key";
+    public static final String KEY_AI_MODEL = "ai_model";
     public static final String KEY_AGREED = "agreement_agreed";
     public static final String KEY_UPDATE_MIRROR = "update_mirror";
     public static final String KEY_NET_LOG = "net_log";
@@ -192,6 +195,47 @@ public class Prefs {
 
     public static void setUpdateMirror(Context c, int v) {
         sp(c).edit().putInt(KEY_UPDATE_MIRROR, v).apply();
+    }
+
+    // ---------------- AI 助手（OpenAI 兼容） ----------------
+
+    /** API 地址，默认智谱；写入 null / 空则回落默认 */
+    public static String aiBase(Context c) {
+        return sp(c).getString(KEY_AI_BASE, AiProvider.PRESETS[0].baseUrl);
+    }
+
+    public static void setAiBase(Context c, String v) {
+        if (v == null || v.trim().isEmpty()) {
+            sp(c).edit().remove(KEY_AI_BASE).apply();
+        } else {
+            sp(c).edit().putString(KEY_AI_BASE, v.trim()).apply();
+        }
+    }
+
+    /** API Key */
+    public static String aiKey(Context c) {
+        return sp(c).getString(KEY_AI_KEY, "");
+    }
+
+    public static void setAiKey(Context c, String v) {
+        if (v == null || v.trim().isEmpty()) {
+            sp(c).edit().remove(KEY_AI_KEY).apply();
+        } else {
+            sp(c).edit().putString(KEY_AI_KEY, v.trim()).apply();
+        }
+    }
+
+    /** 模型名称，默认智谱 glm-4-flash；写入 null / 空则回落默认 */
+    public static String aiModel(Context c) {
+        return sp(c).getString(KEY_AI_MODEL, AiProvider.PRESETS[0].model);
+    }
+
+    public static void setAiModel(Context c, String v) {
+        if (v == null || v.trim().isEmpty()) {
+            sp(c).edit().remove(KEY_AI_MODEL).apply();
+        } else {
+            sp(c).edit().putString(KEY_AI_MODEL, v.trim()).apply();
+        }
     }
 
     /** 是否记录网络请求日志（仅内存，默认开启） */

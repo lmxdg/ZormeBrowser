@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="8dp"
+    android:paddingEnd="12dp"
+    android:paddingStart="12dp">
+
+    <!-- 用户消息：右对齐黑底白字 -->
+    <TextView
+        android:id="@+id/msg_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:background="@drawable/bg_ai_user"
+        android:maxWidth="280dp"
+        android:paddingBottom="10dp"
+        android:paddingEnd="14dp"
+        android:paddingStart="14dp"
+        android:paddingTop="10dp"
+        android:textColor="@color/sheet"
+        android:textIsSelectable="true"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+    <!-- AI 消息：左对齐卡片 -->
+    <LinearLayout
+        android:id="@+id/msg_ai_wrap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/msg_ai"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_ai_assistant"
+            android:maxWidth="300dp"
+            android:paddingBottom="12dp"
+            android:paddingEnd="14dp"
+            android:paddingStart="14dp"
+            android:paddingTop="12dp"
+            android:textColor="@color/text_primary"
+            android:textIsSelectable="true"
+            android:textSize="14sp" />
+    </LinearLayout>
+</FrameLayout>

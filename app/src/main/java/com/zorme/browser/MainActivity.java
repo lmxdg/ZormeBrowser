@@ -221,6 +221,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupHome() {
         findViewById(R.id.home_search).setOnClickListener(v -> openAddressEditor());
+        findViewById(R.id.home_ai_entry).setOnClickListener(v ->
+                startActivity(new Intent(this, AiChatActivity.class)));
         findViewById(R.id.error_retry).setOnClickListener(v -> {
             BrowserTab t = current();
             if (t != null && t.url != null) {
@@ -842,6 +844,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         boolean bookmarked = t != null && !t.showingHome && DbHelper.get(this).isBookmarked(t.url);
+        addMenuTile(R.drawable.ic_ai, "AI 助手", () -> {
+            hideMenu();
+            startActivity(new Intent(this, AiChatActivity.class));
+        });
         addMenuTile(R.drawable.ic_refresh, "刷新", () -> {
             hideMenu();
             if (t != null && !t.showingHome) t.webView.reload();

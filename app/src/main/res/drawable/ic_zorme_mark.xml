@@ -4,7 +4,12 @@
     android:height="64dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- 黑白徽标：外圆环 + 几何 Z（单色渲染，随主题呈黑 / 白） -->
     <path
         android:fillColor="#FFFFFFFF"
-        android:pathData="M32,29.5 H76 V40 L43.6,67.6 H76 V78.5 H32 V67.6 L64.4,40 H32 Z" />
+        android:fillType="evenOdd"
+        android:pathData="M54,12 a42,42 0 1,0 0,84 a42,42 0 1,0 0,-84 Z M54,19 a35,35 0 1,0 0,70 a35,35 0 1,0 0,-70 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M36.5,35.4 H71.5 V44.3 L47,64.9 H71.5 V72.7 H36.5 V64.9 L61.1,44.3 H36.5 Z" />
 </vector>

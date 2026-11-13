@@ -36,6 +36,7 @@ public final class ZDialog {
     private final TextView titleView, messageView, positiveView, negativeView;
     private final EditText inputView;
     private final ScrollView scrollView;
+    private final ScrollView messageScroll;
     private final LinearLayout optionsView;
     private final LinearLayout buttonsRow;
 
@@ -59,6 +60,7 @@ public final class ZDialog {
         negativeView = root.findViewById(R.id.dialog_negative);
         inputView = root.findViewById(R.id.dialog_input);
         scrollView = root.findViewById(R.id.dialog_scroll);
+        messageScroll = root.findViewById(R.id.dialog_message_scroll);
         optionsView = root.findViewById(R.id.dialog_options);
         buttonsRow = root.findViewById(R.id.dialog_buttons);
     }
@@ -270,12 +272,22 @@ public final class ZDialog {
 
     private void setMessage(CharSequence message) {
         if (message == null || message.length() == 0) {
-            messageView.setVisibility(View.GONE);
+            messageScroll.setVisibility(View.GONE);
         } else {
+            // 长文本放入可滚动容器，超出约 55% 屏高后内部滚动，保证更新日志 / 协议全文可见
+            messageScroll.setVisibility(View.VISIBLE);
             messageView.setVisibility(View.VISIBLE);
             messageView.setText(message);
-            messageView.setMaxLines(18);
-            messageView.setEllipsize(TextUtils.TruncateAt.END);
+            messageView.setMaxLines(Integer.MAX_VALUE);
+            messageView.setEllipsize(null);
+            int max = (int) (activity.getResources().getDisplayMetrics().heightPixels * 0.55f);
+            messageScroll.post(() -> {
+                if (messageScroll.getHeight() > max) {
+                    ViewGroup.LayoutParams lp = messageScroll.getLayoutParams();
+                    lp.height = max;
+                    messageScroll.setLayoutParams(lp);
+                }
+            });
         }
     }
 

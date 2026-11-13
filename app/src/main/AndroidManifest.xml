@@ -45,6 +45,12 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".AiChatActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|uiMode"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".NetworkLogActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|uiMode"
             android:exported="false"

@@ -48,16 +48,16 @@ public class UiFlowTest {
         a.findViewById(R.id.btn_menu).performClick();
         assertEquals(View.VISIBLE, a.findViewById(R.id.menu_overlay).getVisibility());
         GridLayout grid = a.findViewById(R.id.menu_grid);
-        assertEquals(15, grid.getChildCount());
+        assertEquals(16, grid.getChildCount());
 
-        // 夜间模式开关
+        // 夜间模式开关（菜单首项为 AI 助手，夜间模式在 index 6）
         boolean before = Prefs.night(a);
-        grid.getChildAt(5).performClick();
+        grid.getChildAt(6).performClick();
         assertEquals(View.GONE, a.findViewById(R.id.menu_overlay).getVisibility());
         assertEquals(!before, Prefs.night(a));
 
         a.findViewById(R.id.btn_menu).performClick();
-        grid.getChildAt(5).performClick();
+        grid.getChildAt(6).performClick();
         assertEquals(before, Prefs.night(a));
 
         // 标签页
@@ -86,9 +86,9 @@ public class UiFlowTest {
         shortcuts.getChildAt(0).performClick();
         assertEquals(View.GONE, a.findViewById(R.id.home_view).getVisibility());
 
-        // 回到主页
+        // 回到主页（菜单：0=AI 助手 1=刷新 2=主页）
         a.findViewById(R.id.btn_menu).performClick();
-        grid.getChildAt(1).performClick();
+        grid.getChildAt(2).performClick();
         assertEquals(View.VISIBLE, a.findViewById(R.id.home_view).getVisibility());
     }
 }

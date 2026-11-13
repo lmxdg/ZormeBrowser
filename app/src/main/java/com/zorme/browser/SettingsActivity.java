@@ -86,6 +86,21 @@ public class SettingsActivity extends AppCompatActivity {
                     if (!v) NetworkLog.clear();
                 });
 
+        addSection("AI 助手");
+        addText("AI 服务商", "内置配置 + 自定义，OpenAI 兼容协议",
+                aiProviderLabel(), this::chooseAiProvider);
+        addText("API 地址", "OpenAI 兼容接口地址，可填根地址或 /v1",
+                Prefs.aiBase(this), () -> editAiField("API 地址",
+                        "例如 " + AiProvider.PRESETS[0].baseUrl, Prefs.aiBase(this),
+                        v -> Prefs.setAiBase(this, v)));
+        addText("API Key", "保存在本机，不会上传到任何服务器",
+                Prefs.aiKey(this).isEmpty() ? "未设置" : "已设置",
+                () -> editAiField("API Key", "输入服务商颁发的 API Key", Prefs.aiKey(this),
+                        v -> Prefs.setAiKey(this, v)));
+        addText("模型", "服务商支持的模型名称", Prefs.aiModel(this),
+                () -> editAiField("模型", "例如 glm-4-flash、deepseek-chat", Prefs.aiModel(this),
+                        v -> Prefs.setAiModel(this, v)));
+
         addSection(getString(R.string.setting_privacy));
         addText("用户协议与隐私政策", "开源项目 · 无云服务 · 数据仅存本机", "",
                 () -> ZDialog.alert(this, Agreement.title(), Agreement.fullText()));
@@ -299,6 +314,58 @@ public class SettingsActivity extends AppCompatActivity {
         if (what == 3) {
             WebStorage.getInstance().deleteAllData();
         }
+    }
+
+    // ---------------- AI 助手配置 ----------------
+
+    /** 当前服务商显示名：地址匹配预设则显示预设名，否则为自定义 */
+    private String aiProviderLabel() {
+        String base = Prefs.aiBase(this);
+        for (AiProvider p : AiProvider.PRESETS) {
+            if (!p.baseUrl.isEmpty() && p.baseUrl.equals(base)) return p.name;
+        }
+        return AiProvider.PRESETS[AiProvider.CUSTOM].name;
+    }
+
+    /** 选择服务商：内置预设自动填入地址与模型，自定义要求填地址 */
+    private void chooseAiProvider() {
+        String[] names = new String[AiProvider.PRESETS.length];
+        for (int i = 0; i < names.length; i++) names[i] = AiProvider.PRESETS[i].name;
+        ZDialog.choice(this, "AI 服务商", names, -1, which -> {
+            AiProvider p = AiProvider.PRESETS[which];
+            Prefs.setAiBase(this, p.baseUrl);
+            Prefs.setAiModel(this, p.model);
+            recreate();
+            if (which == AiProvider.CUSTOM) {
+                inputAiBase();
+            } else {
+                ZDialog.alert(this, p.name,
+                        "已填入默认接口地址与模型。\n\n"
+                                + "地址：" + p.baseUrl + "\n"
+                                + "模型：" + p.model + "\n\n"
+                                + p.note + "\n\n接下来请填写 API Key。");
+            }
+        });
+    }
+
+    private void inputAiBase() {
+        ZDialog.input(this, "API 地址", "https://api.example.com/v1",
+                Prefs.aiBase(this), "保存", v -> {
+                    if (!v.trim().isEmpty()) Prefs.setAiBase(this, v);
+                    recreate();
+                });
+    }
+
+    /** 通用编辑弹窗：保存后写回并刷新列表 */
+    private interface FieldSetter {
+        void set(String v);
+    }
+
+    private void editAiField(String title, String hint, String initial, FieldSetter setter) {
+        ZDialog.input(this, title, hint, initial, "保存", v -> {
+            setter.set(v == null ? "" : v.trim());
+            recreate();
+        });
     }
 
     private void showAbout() {
