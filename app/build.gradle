@@ -14,8 +14,8 @@ android {
         applicationId "com.zorme.browser"
         minSdk 23
         targetSdk 34
-        versionCode 4
-        versionName "1.0.1"
+        versionCode 5
+        versionName "1.0.2"
         resConfigs "zh", "en"
     }
 

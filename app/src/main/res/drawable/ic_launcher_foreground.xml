@@ -4,7 +4,36 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- 球体轮廓 -->
     <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M32,29.5 H76 V40 L43.6,67.6 H76 V78.5 H32 V67.6 L64.4,40 H32 Z" />
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="3.4"
+        android:pathData="M28,54 a26,26 0 1,0 52,0 a26,26 0 1,0 -52,0 Z" />
+    <!-- 经线（竖向椭圆） -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.6"
+        android:pathData="M42.5,54 a11.5,26 0 1,0 23,0 a11.5,26 0 1,0 -23,0 Z" />
+    <!-- 赤道 -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.8"
+        android:pathData="M28,54 H80" />
+    <!-- 北纬线（朝赤道微弯） -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.6"
+        android:strokeLineCap="round"
+        android:pathData="M30.9,42 Q54,47.4 77.1,42" />
+    <!-- 南纬线（朝赤道微弯） -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.6"
+        android:strokeLineCap="round"
+        android:pathData="M30.9,66 Q54,60.6 77.1,66" />
 </vector>

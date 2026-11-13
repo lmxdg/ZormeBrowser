@@ -12,7 +12,7 @@
 <p align="center">
   <a href="https://github.com/lmxdg/ZormeBrowser/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/lmxdg/ZormeBrowser?label=%E6%9C%80%E6%96%B0%E7%89%88&color=black"/></a>
   <img alt="Platform" src="https://img.shields.io/badge/%E5%B9%B3%E5%8F%B0-Android%205.0%2B-black"/>
-  <img alt="Size" src="https://img.shields.io/badge/APK-%E7%BA%A62.5MB-black"/>
+  <img alt="Size" src="https://img.shields.io/badge/APK-%E7%BA%A62.6MB-black"/>
   <img alt="License" src="https://img.shields.io/badge/%E8%AE%B8%E5%8F%AF%E8%AF%81-MIT-black"/>
 </p>
 
@@ -64,6 +64,19 @@
 - 内置更新检测，对比 GitHub Releases 最新 tag 与本地版本号（语义化比较）
 - 发现新版本时通过内置弹窗展示更新说明，支持直接下载 APK 或打开发布页
 
+## 更新日志
+
+**v1.0.2**
+- 全新应用图标：白色线框地球（黑底），方形 / 圆形双版本
+
+**v1.0.1**
+- 新增网站 SSL 证书信息查看（证书链、指纹、SAN、有效期）
+- 标签页管理显示网站实时预览截图
+- 修复 `intent://` 链接误报"无法打开"打断网页跳转的问题
+
+**v1.0.0**
+- 首个正式版：Via 风格浏览体验、内置自绘弹窗体系、自定义 UA、广告拦截、夜间模式、应用内检测更新
+
 ## 界面预览
 
 | 主页 | 菜单 | 标签页 |
@@ -86,6 +99,8 @@ cd ZormeBrowser
 产物位于 `app/build/outputs/apk/release/app-release.apk`。
 
 仓库内的 `zorme-release.jks` 是测试签名（密码 `zorme2024`），**仅供开发调试使用**，正式发布请替换为你自己的密钥。
+
+> Gradle 发行版下载源默认配置为腾讯云镜像（`mirrors.cloud.tencent.com`），国内网络更稳定；如需官方源，把 `gradle/wrapper/gradle-wrapper.properties` 中的 `distributionUrl` 改回 `https://services.gradle.org/distributions/gradle-8.7-bin.zip` 即可。
 
 ## 项目结构
 
