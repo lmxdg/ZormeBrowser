@@ -18,6 +18,13 @@ import org.robolectric.annotation.Config;
 @Config(sdk = 33)
 public class SmokeTest {
 
+    @org.junit.Before
+    public void setUp() {
+        org.robolectric.RuntimeEnvironment.getApplication()
+                .getSharedPreferences("zorme_prefs", 0)
+                .edit().putBoolean("agreement_agreed", true).commit();
+    }
+
     @Test
     public void mainActivityStarts() {
         MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();

@@ -120,6 +120,11 @@ public class MainActivity extends AppCompatActivity {
     private WebChromeClient.CustomViewCallback customViewCallback;
     private FrameLayout fullscreenContainer;
 
+    /** 主题切换触发的 recreate 标记：重建时保留当前浏览内容，不强制回主页 */
+    static boolean recreatingForTheme;
+    /** onCreate 中已按"启动打开主页"处理过，避免 handleIntent 再次重复加载主页 */
+    private boolean homeHandledOnCreate;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,6 +143,11 @@ public class MainActivity extends AppCompatActivity {
         handleIntent(getIntent());
         updateAllUi();
         appliedTheme = Prefs.theme(this);
+
+        // 首次启动：用户协议与隐私政策（自绘弹窗，同意前不可使用，拒绝则退出）
+        Agreement.showIfNeeded(this, () -> {
+            if (!Prefs.agreed(this)) Prefs.setAgreed(this, true);
+        }, this::finishAffinity);
     }
 
     private void bindViews() {
@@ -669,6 +679,35 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /** 查看当前网页的 HTML 源代码 */
+    private void viewSource() {
+        final BrowserTab t = current();
+        if (t == null || t.showingHome || t.url == null
+                || t.url.startsWith("about:") || t.url.isEmpty()) {
+            Utils.toast(this, "请先打开一个网页");
+            return;
+        }
+        ZDialog.toast(this, "正在获取源码…");
+        String js = "(function(){try{return document.documentElement.outerHTML;}catch(e){return null;}})()";
+        t.webView.evaluateJavascript(js, value -> {
+            if (isFinishing()) return;
+            String html = null;
+            if (value != null && !"null".equals(value) && value.length() > 4) {
+                try {
+                    html = new JSONArray("[" + value + "]").getString(0);
+                } catch (Exception e) {
+                    html = null;
+                }
+            }
+            if (html == null || html.isEmpty()) {
+                ZDialog.alert(this, "网页源码",
+                        "未能获取到源码：页面尚未加载完成或内容为空。");
+                return;
+            }
+            SourceActivity.start(this, t.url, html);
+        });
+    }
+
     /** 查看当前网站的 SSL/TLS 证书信息 */
     private void showSslInfo() {
         BrowserTab t = current();
@@ -850,6 +889,14 @@ public class MainActivity extends AppCompatActivity {
         addMenuTile(R.drawable.ic_reader, "阅读模式", () -> {
             hideMenu();
             readerMode();
+        });
+        addMenuTile(R.drawable.ic_code, "网页源码", () -> {
+            hideMenu();
+            viewSource();
+        });
+        addMenuTile(R.drawable.ic_network, "网络日志", () -> {
+            hideMenu();
+            startActivity(new Intent(this, NetworkLogActivity.class));
         });
         addMenuTile(R.drawable.ic_lock, "网站证书", () -> {
             hideMenu();
@@ -1242,6 +1289,8 @@ public class MainActivity extends AppCompatActivity {
         String action = intent.getAction();
         // 从桌面图标再次进入：回到主页（原标签保留在标签页中，可随时切回）
         if (Intent.ACTION_MAIN.equals(action) && Prefs.openHome(this)) {
+            // onCreate 刚按同一设置打开过主页，避免自定义主页被加载两次
+            if (homeHandledOnCreate) return;
             BrowserTab t = current();
             if (t != null && !t.showingHome) {
                 goHome(t);
@@ -1262,10 +1311,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void restoreOrCreateTabs(Bundle state) {
-        // 冷启动：始终打开主页（可在设置中关闭）
-        if (state == null && Prefs.openHome(this)) {
+        // 主题切换触发的界面重建：保留当前浏览内容，不强制回主页
+        boolean themeRecreate = state != null && recreatingForTheme;
+        recreatingForTheme = false;
+        // 冷启动 / 进程被杀后恢复：设置了"启动打开主页"时直接进入主页（不再需要手动点主页）
+        if (!themeRecreate && Prefs.openHome(this)) {
             String h = customHomeUrl();
             createTab(false, h.isEmpty() ? null : Utils.normalizeUrl(h));
+            homeHandledOnCreate = true;
             return;
         }
         // 界面重建（如切换主题）：清掉上一实例遗留的 WebView，再按会话恢复
@@ -1301,6 +1354,7 @@ public class MainActivity extends AppCompatActivity {
         if (Prefs.theme(this) != appliedTheme) {
             appliedTheme = Prefs.theme(this);
             Session.save(this);
+            recreatingForTheme = true;
             recreate();
             return;
         }
@@ -1487,13 +1541,26 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+            String url = request.getUrl().toString();
+            boolean blocked = false;
             try {
                 if (Prefs.adblock(MainActivity.this)
-                        && AdBlocker.get(MainActivity.this).isBlocked(request.getUrl().toString())) {
-                    return new WebResourceResponse("text/plain", "utf-8",
-                            new ByteArrayInputStream(new byte[0]));
+                        && AdBlocker.get(MainActivity.this).isBlocked(url)) {
+                    blocked = true;
                 }
             } catch (Exception ignored) {
+            }
+            // 网络日志（仅内存）：记录主文档与子资源请求、广告拦截事件
+            if (Prefs.netLog(MainActivity.this) && !blocked
+                    && !url.startsWith("about:") && !url.startsWith("data:")
+                    && !url.startsWith("blob:") && !url.startsWith("javascript:")) {
+                NetworkLog.record(request.getMethod(), url, request.isForMainFrame(), false);
+            } else if (Prefs.netLog(MainActivity.this) && blocked) {
+                NetworkLog.record(request.getMethod(), url, request.isForMainFrame(), true);
+            }
+            if (blocked) {
+                return new WebResourceResponse("text/plain", "utf-8",
+                        new ByteArrayInputStream(new byte[0]));
             }
             return super.shouldInterceptRequest(view, request);
         }

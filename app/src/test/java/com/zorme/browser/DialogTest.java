@@ -47,6 +47,7 @@ public class DialogTest {
             TabManager.get().destroyAll();
         } catch (Exception ignored) {
         }
+        Prefs.setAgreed(RuntimeEnvironment.getApplication(), true);
         Prefs.setTheme(RuntimeEnvironment.getApplication(), Prefs.THEME_DARK);
         ShadowLooper.idleMainLooper();
         new File("/tmp/shots").mkdirs();

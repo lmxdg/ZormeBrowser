@@ -22,6 +22,9 @@ public class UiFlowTest {
 
     @Before
     public void setUp() {
+        org.robolectric.RuntimeEnvironment.getApplication()
+                .getSharedPreferences("zorme_prefs", 0)
+                .edit().putBoolean("agreement_agreed", true).commit();
         try {
             TabManager.get().destroyAll();
         } catch (Exception ignored) {
@@ -45,7 +48,7 @@ public class UiFlowTest {
         a.findViewById(R.id.btn_menu).performClick();
         assertEquals(View.VISIBLE, a.findViewById(R.id.menu_overlay).getVisibility());
         GridLayout grid = a.findViewById(R.id.menu_grid);
-        assertEquals(13, grid.getChildCount());
+        assertEquals(15, grid.getChildCount());
 
         // 夜间模式开关
         boolean before = Prefs.night(a);

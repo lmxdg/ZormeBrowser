@@ -1,39 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- 球体轮廓 -->
+    <!-- 环带（整体先画，中段将被球体覆盖） -->
     <path
-        android:fillColor="#00000000"
-        android:strokeColor="#FFFFFFFF"
-        android:strokeWidth="3.4"
-        android:pathData="M28,54 a26,26 0 1,0 52,0 a26,26 0 1,0 -52,0 Z" />
-    <!-- 经线（竖向椭圆） -->
-    <path
-        android:fillColor="#00000000"
-        android:strokeColor="#FFFFFFFF"
-        android:strokeWidth="2.6"
-        android:pathData="M42.5,54 a11.5,26 0 1,0 23,0 a11.5,26 0 1,0 -23,0 Z" />
-    <!-- 赤道 -->
-    <path
-        android:fillColor="#00000000"
-        android:strokeColor="#FFFFFFFF"
-        android:strokeWidth="2.8"
-        android:pathData="M28,54 H80" />
-    <!-- 北纬线（朝赤道微弯） -->
-    <path
-        android:fillColor="#00000000"
-        android:strokeColor="#FFFFFFFF"
-        android:strokeWidth="2.6"
+        android:strokeWidth="7"
         android:strokeLineCap="round"
-        android:pathData="M30.9,42 Q54,47.4 77.1,42" />
-    <!-- 南纬线（朝赤道微弯） -->
+        android:pathData="M77.04,74.74 A31,11.5,42,0,1 30.96,33.26 A31,11.5,42,0,1 77.04,74.74 Z">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:type="linear"
+                android:startX="30"
+                android:startY="33"
+                android:endX="78"
+                android:endY="75"
+                android:startColor="#FF62CCFF"
+                android:endColor="#FF2B50D8" />
+        </aapt:attr>
+    </path>
+    <!-- 星球（径向渐变：左上亮、右下深） -->
     <path
-        android:fillColor="#00000000"
-        android:strokeColor="#FFFFFFFF"
-        android:strokeWidth="2.6"
+        android:pathData="M32,54 a22,22 0 1,0 44,0 a22,22 0 1,0 -44,0 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="46"
+                android:centerY="44"
+                android:gradientRadius="38"
+                android:startColor="#FF5EC8FF"
+                android:endColor="#FF1D5BE8" />
+        </aapt:attr>
+    </path>
+    <!-- 环带（前段：绕过星球前方） -->
+    <path
+        android:strokeWidth="7"
         android:strokeLineCap="round"
-        android:pathData="M30.9,66 Q54,60.6 77.1,66" />
+        android:pathData="M63.17,74.00 A31,11.5,42,0,1 33.15,46.97">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:type="linear"
+                android:startX="30"
+                android:startY="33"
+                android:endX="78"
+                android:endY="75"
+                android:startColor="#FF62CCFF"
+                android:endColor="#FF2B50D8" />
+        </aapt:attr>
+    </path>
 </vector>

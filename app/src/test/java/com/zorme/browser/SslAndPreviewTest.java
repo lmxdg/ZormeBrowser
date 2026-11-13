@@ -36,6 +36,7 @@ public class SslAndPreviewTest {
             TabManager.get().destroyAll();
         } catch (Exception ignored) {
         }
+        Prefs.setAgreed(org.robolectric.RuntimeEnvironment.getApplication(), true);
         a = Robolectric.buildActivity(MainActivity.class).setup().get();
     }
 

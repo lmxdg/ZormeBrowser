@@ -19,6 +19,7 @@
     <string name="confirm">确定</string>
     <string name="save">保存</string>
     <string name="delete">删除</string>
+    <string name="copy">复制</string>
     <string name="share">分享</string>
     <string name="copy_link">复制链接</string>
     <string name="open_new_tab">在新标签页打开</string>

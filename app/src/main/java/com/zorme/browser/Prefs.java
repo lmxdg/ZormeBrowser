@@ -23,6 +23,9 @@ public class Prefs {
     public static final String KEY_RECORD_HISTORY = "record_history";
     public static final String KEY_TEXT_ZOOM = "text_zoom";
     public static final String KEY_OPEN_HOME = "open_home";
+    public static final String KEY_AGREED = "agreement_agreed";
+    public static final String KEY_UPDATE_MIRROR = "update_mirror";
+    public static final String KEY_NET_LOG = "net_log";
 
     public static final int THEME_DARK = 0;
     public static final int THEME_LIGHT = 1;
@@ -171,5 +174,32 @@ public class Prefs {
 
     public static void setTextZoom(Context c, int v) {
         sp(c).edit().putInt(KEY_TEXT_ZOOM, v).apply();
+    }
+
+    /** 用户协议 / 隐私政策是否已同意 */
+    public static boolean agreed(Context c) {
+        return sp(c).getBoolean(KEY_AGREED, false);
+    }
+
+    public static void setAgreed(Context c, boolean v) {
+        sp(c).edit().putBoolean(KEY_AGREED, v).apply();
+    }
+
+    /** 检测更新下载 APK 时使用的 GitHub 加速站下标（UpdateChecker.MIRROR_*） */
+    public static int updateMirror(Context c) {
+        return sp(c).getInt(KEY_UPDATE_MIRROR, 0);
+    }
+
+    public static void setUpdateMirror(Context c, int v) {
+        sp(c).edit().putInt(KEY_UPDATE_MIRROR, v).apply();
+    }
+
+    /** 是否记录网络请求日志（仅内存，默认开启） */
+    public static boolean netLog(Context c) {
+        return sp(c).getBoolean(KEY_NET_LOG, true);
+    }
+
+    public static void setNetLog(Context c, boolean v) {
+        sp(c).edit().putBoolean(KEY_NET_LOG, v).apply();
     }
 }

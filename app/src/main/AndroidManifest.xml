@@ -45,6 +45,18 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".NetworkLogActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|uiMode"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".SourceActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|uiMode"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".SettingsActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|uiMode"
             android:exported="false"

@@ -34,6 +34,7 @@ public class ScreenshotTest {
             TabManager.get().destroyAll();
         } catch (Exception ignored) {
         }
+        Prefs.setAgreed(org.robolectric.RuntimeEnvironment.getApplication(), true);
         Prefs.setTheme(org.robolectric.RuntimeEnvironment.getApplication(), Prefs.THEME_DARK);
         org.robolectric.shadows.ShadowLooper.idleMainLooper();
         new File("/tmp/shots").mkdirs();

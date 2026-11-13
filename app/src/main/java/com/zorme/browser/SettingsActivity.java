@@ -80,8 +80,15 @@ public class SettingsActivity extends AppCompatActivity {
                 Prefs.gesture(this), v -> Prefs.setGesture(this, v));
         addSwitch("记录浏览历史", "关闭后不再保存新的历史记录",
                 Prefs.recordHistory(this), v -> Prefs.setRecordHistory(this, v));
+        addSwitch("网络日志", "记录网页加载的资源请求（仅保存在内存，退出即清空）",
+                Prefs.netLog(this), v -> {
+                    Prefs.setNetLog(this, v);
+                    if (!v) NetworkLog.clear();
+                });
 
         addSection(getString(R.string.setting_privacy));
+        addText("用户协议与隐私政策", "开源项目 · 无云服务 · 数据仅存本机", "",
+                () -> ZDialog.alert(this, Agreement.title(), Agreement.fullText()));
         addText(getString(R.string.setting_clear_cache), "清除网页缓存文件（不影响书签）", "",
                 () -> confirmClear(0));
         addText(getString(R.string.setting_clear_cookies), "退出所有网站的登录状态", "",
@@ -302,11 +309,14 @@ public class SettingsActivity extends AppCompatActivity {
                         + "· 广告与追踪域名拦截\n"
                         + "· 夜间模式 / 无图模式 / 浏览器标识(UA)\n"
                         + "· 阅读模式与页内查找\n"
+                        + "· 网页源码查看、网络日志抓取\n"
                         + "· 无痕浏览、书签、历史、下载管理\n"
                         + "· 底部地址栏与边缘滑动导航\n"
-                        + "· 应用内检测更新\n"
+                        + "· 应用内检测更新（支持 GitHub 加速站）\n"
                         + "· 全部界面元素内置自绘\n\n"
-                        + "界面与图标均为 Zorme 原创设计。");
+                        + "本项目为开源软件，无云服务、无账号体系，"
+                        + "所有数据仅保存在本机。\n"
+                        + "源码：github.com/lmxdg/ZormeBrowser");
     }
 
     private String versionName() {
@@ -399,9 +409,24 @@ public class SettingsActivity extends AppCompatActivity {
                     Utils.toast(this, "无法打开发布页");
                 }
             } else {
-                startApkDownload(apkUrl, version);
+                chooseMirrorThenDownload(apkUrl, version);
             }
         });
+    }
+
+    /** 下载前选择 GitHub 加速站：直连 / ghfast.top / ghproxy.net，记住上次选择 */
+    private void chooseMirrorThenDownload(String apkUrl, String version) {
+        if (apkUrl == null || apkUrl.isEmpty()) {
+            Utils.toast(this, "没有找到安装包，请打开发布页手动下载");
+            return;
+        }
+        int saved = Prefs.updateMirror(this);
+        if (saved < 0 || saved >= UpdateChecker.MIRROR_NAMES.length) saved = 0;
+        ZDialog.choice(this, "选择下载加速站",
+                UpdateChecker.MIRROR_NAMES, saved, which -> {
+                    Prefs.setUpdateMirror(this, which);
+                    startApkDownload(UpdateChecker.applyMirror(apkUrl, which), version);
+                });
     }
 
     private void startApkDownload(String apkUrl, String version) {

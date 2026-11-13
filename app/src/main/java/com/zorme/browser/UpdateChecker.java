@@ -27,6 +27,30 @@ public class UpdateChecker {
     public static final String API_URL =
             "https://api.github.com/repos/" + REPO_OWNER + "/" + REPO_NAME + "/releases/latest";
 
+    /* ---------- 下载加速站 ---------- */
+
+    /** 加速站显示名称 */
+    public static final String[] MIRROR_NAMES = {
+            "GitHub 直连（github.com）",
+            "ghfast.top 加速",
+            "ghproxy.net 加速",
+    };
+
+    /** 对应的下载链接前缀，下标 0 为直连 */
+    public static final String[] MIRROR_PREFIXES = {
+            "",
+            "https://ghfast.top/",
+            "https://ghproxy.net/",
+    };
+
+    /** 按加速站下标拼接下载地址（直连返回原地址；仅对 http/https 生效） */
+    public static String applyMirror(String url, int mirrorIndex) {
+        if (url == null || url.isEmpty()) return url;
+        if (mirrorIndex <= 0 || mirrorIndex >= MIRROR_PREFIXES.length) return url;
+        if (!url.startsWith("http://") && !url.startsWith("https://")) return url;
+        return MIRROR_PREFIXES[mirrorIndex] + url;
+    }
+
     /** ok：请求是否成功；hasUpdate：远端是否比本地新 */
     public interface Callback {
         void onResult(boolean ok, boolean hasUpdate, String latestVersion,

@@ -31,6 +31,7 @@ public class LightThemeTest {
     public void captureLightHome() throws Exception {
         Context c = RuntimeEnvironment.getApplication();
         Prefs.setTheme(c, Prefs.THEME_LIGHT);
+        Prefs.setAgreed(c, true);
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         TabManager.get().destroyAll();
 

@@ -16,7 +16,7 @@
     <color name="scrim">#8A000000</color>
     <color name="sheet">#FFFFFFFF</color>
     <color name="progress">#FF111114</color>
-    <color name="icon_background">#FF000000</color>
+    <color name="icon_background">#FFFFFFFF</color>
     <color name="danger">#FFD93B3B</color>
     <color name="home_glow">#14000000</color>
 </resources>

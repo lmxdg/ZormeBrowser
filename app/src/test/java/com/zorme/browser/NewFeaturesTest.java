@@ -32,6 +32,7 @@ public class NewFeaturesTest {
         c = ApplicationProvider.getApplicationContext();
         Prefs.setUaMode(c, Prefs.UA_DEFAULT);
         Prefs.setUaCustom(c, "");
+        Prefs.setAgreed(c, true);
         try {
             TabManager.get().destroyAll();
         } catch (Exception ignored) {

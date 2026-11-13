@@ -113,6 +113,30 @@ public final class ZDialog {
         confirm(a, title, message, okText, "取消", onOk, null, true);
     }
 
+    /** 强制确认弹窗：点遮罩不关闭（用于首次启动协议等必须做出选择的场景） */
+    public static void confirmLocked(Activity a, String title, CharSequence message,
+                                     String okText, String cancelText,
+                                     Runnable onOk, Runnable onCancel) {
+        if (a == null || a.isFinishing()) return;
+        ZDialog d = make(a);
+        d.cancelOnOutside = false;
+        d.titleView.setText(title);
+        d.setMessage(message);
+        d.positiveView.setText(okText);
+        d.negativeView.setText(cancelText);
+        d.buttonsRow.setVisibility(View.VISIBLE);
+        d.positiveView.setOnClickListener(v -> {
+            d.positiveClicked = true;
+            d.dismiss();
+            if (onOk != null) onOk.run();
+        });
+        d.negativeView.setOnClickListener(v -> d.dismiss());
+        d.onDismiss = () -> {
+            if (!d.positiveClicked && onCancel != null) onCancel.run();
+        };
+        d.show();
+    }
+
     public static void confirm(Activity a, String title, CharSequence message, String okText,
                                String cancelText, Runnable onOk, Runnable onCancel, boolean danger) {
         if (a == null || a.isFinishing()) return;
