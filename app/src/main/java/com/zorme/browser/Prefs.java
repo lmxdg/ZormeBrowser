@@ -29,6 +29,8 @@ public class Prefs {
     public static final String KEY_AGREED = "agreement_agreed";
     public static final String KEY_UPDATE_MIRROR = "update_mirror";
     public static final String KEY_NET_LOG = "net_log";
+    public static final String KEY_TRANSLATE_TARGET = "translate_target";
+    public static final String KEY_TRANSLATE_AUTO = "translate_auto";
 
     public static final int THEME_DARK = 0;
     public static final int THEME_LIGHT = 1;
@@ -245,5 +247,31 @@ public class Prefs {
 
     public static void setNetLog(Context c, boolean v) {
         sp(c).edit().putBoolean(KEY_NET_LOG, v).apply();
+    }
+
+    // ---------------- 网页翻译（必应） ----------------
+
+    /** 翻译目标语言，默认简体中文 */
+    public static String translateTarget(Context c) {
+        String v = sp(c).getString(KEY_TRANSLATE_TARGET, BingTranslate.LANGS[0].code);
+        return v == null || v.trim().isEmpty() ? BingTranslate.LANGS[0].code : v.trim();
+    }
+
+    public static void setTranslateTarget(Context c, String code) {
+        String v = code == null ? "" : code.trim();
+        if (v.isEmpty()) {
+            sp(c).edit().remove(KEY_TRANSLATE_TARGET).apply();
+        } else {
+            sp(c).edit().putString(KEY_TRANSLATE_TARGET, v).apply();
+        }
+    }
+
+    /** 自动翻译外语网页（默认关闭） */
+    public static boolean autoTranslate(Context c) {
+        return sp(c).getBoolean(KEY_TRANSLATE_AUTO, false);
+    }
+
+    public static void setAutoTranslate(Context c, boolean v) {
+        sp(c).edit().putBoolean(KEY_TRANSLATE_AUTO, v).apply();
     }
 }

@@ -101,6 +101,22 @@ public class SettingsActivity extends AppCompatActivity {
                 () -> editAiField("模型", "例如 glm-4-flash、deepseek-chat", Prefs.aiModel(this),
                         v -> Prefs.setAiModel(this, v)));
 
+        addSection("翻译");
+        addText(getString(R.string.translate_service), "必应翻译 · 无需 API Key，文本直连微软接口",
+                "内置", () -> ZDialog.alert(this, getString(R.string.translate_service),
+                        "网页翻译由必应翻译（Microsoft Translator）提供。\n\n"
+                                + "· 无需申请 API Key，也不经过任何第三方中转服务\n"
+                                + "· 仅把网页正文文本发送给翻译接口，不上传网址、Cookie 或账号信息\n"
+                                + "· 译文直接替换页面文字，可随时在翻译栏点「原文」还原\n"
+                                + "· 若翻译服务不可用，请稍后重试"));
+        addText(getString(R.string.translate_target), "整页翻译与划词翻译使用的语言",
+                BingTranslate.targetName(Prefs.translateTarget(this)), this::chooseTranslateTarget);
+        addSwitch("自动翻译外语网页", "网页语言与目标语言不同时自动整页翻译",
+                Prefs.autoTranslate(this), v -> {
+                    Prefs.setAutoTranslate(this, v);
+                    Utils.toast(this, v ? "已开启自动翻译" : "已关闭自动翻译");
+                });
+
         addSection(getString(R.string.setting_privacy));
         addText("用户协议与隐私政策", "开源项目 · 无云服务 · 数据仅存本机", "",
                 () -> ZDialog.alert(this, Agreement.title(), Agreement.fullText()));
@@ -376,6 +392,7 @@ public class SettingsActivity extends AppCompatActivity {
                         + "· 广告与追踪域名拦截\n"
                         + "· 夜间模式 / 无图模式 / 浏览器标识(UA)\n"
                         + "· 阅读模式与页内查找\n"
+                        + "· 网页翻译（必应翻译）与划词翻译\n"
                         + "· 网页源码查看、网络日志抓取\n"
                         + "· 无痕浏览、书签、历史、下载管理\n"
                         + "· 底部地址栏与边缘滑动导航\n"
@@ -384,6 +401,23 @@ public class SettingsActivity extends AppCompatActivity {
                         + "本项目为开源软件，无云服务、无账号体系，"
                         + "所有数据仅保存在本机。\n"
                         + "源码：github.com/lmxdg/ZormeBrowser");
+    }
+
+    /* ---------- 翻译 ---------- */
+
+    private void chooseTranslateTarget() {
+        String[] names = new String[BingTranslate.LANGS.length];
+        int checked = 0;
+        String current = Prefs.translateTarget(this);
+        for (int i = 0; i < names.length; i++) {
+            names[i] = BingTranslate.LANGS[i].name;
+            if (BingTranslate.LANGS[i].code.equalsIgnoreCase(current)) checked = i;
+        }
+        ZDialog.choice(this, getString(R.string.translate_target), names, checked, which -> {
+            Prefs.setTranslateTarget(this, BingTranslate.LANGS[which].code);
+            build();
+            Utils.toast(this, "目标语言已设为" + names[which]);
+        });
     }
 
     private String versionName() {

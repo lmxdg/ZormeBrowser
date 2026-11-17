@@ -12,7 +12,7 @@
 <p align="center">
   <a href="https://github.com/lmxdg/ZormeBrowser/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/lmxdg/ZormeBrowser?label=%E6%9C%80%E6%96%B0%E7%89%88&color=black"/></a>
   <img alt="Platform" src="https://img.shields.io/badge/%E5%B9%B3%E5%8F%B0-Android%205.0%2B-black"/>
-  <img alt="Size" src="https://img.shields.io/badge/APK-%E7%BA%A62.6MB-black"/>
+  <img alt="Size" src="https://img.shields.io/badge/APK-%E7%BA%A62.7MB-black"/>
   <img alt="License" src="https://img.shields.io/badge/%E8%AE%B8%E5%8F%AF%E8%AF%81-MIT-black"/>
 </p>
 
@@ -34,6 +34,14 @@
 - 边缘滑动前进 / 后退手势
 - 网页源码查看：获取当前页面完整 HTML，支持一键复制（超长源码自动分段展示）
 - 网络日志抓取：记录页面加载的全部资源请求（方法 / URL / 主文档或子资源 / 广告拦截标注），仅存内存、退出即清空，可随时清空或复制链接
+
+**网页翻译（必应翻译）**
+- 菜单「翻译」一键整页翻译：按段落批量调用必应翻译，译文原位替换页面文字，不刷新页面、不改动版式
+- 15 种目标语言：简体中文 / 繁体中文 / 英语 / 日语 / 韩语 / 法语 / 德语 / 西班牙语 / 葡萄牙语 / 俄语 / 意大利语 / 阿拉伯语 / 泰语 / 越南语 / 土耳其语
+- 划词翻译：读取网页中选中的文字，中文自动反译成英文、外文译为中文，译文可一键复制
+- 翻译栏：显示翻译进度（如 12/58 段），可随时停止；完成后点「原文」一键还原整页
+- 自动翻译：可在设置中开启「自动翻译外语网页」，网页语言与目标语言不同时自动翻译（默认关闭）
+- 无需 API Key：内置微软 Edge 翻译凭据接口 + Translator v3 文本接口，请求直连微软，不经过任何中转服务器，仅发送待译文本
 
 **AI 助手（OpenAI 兼容）**
 - 主页快捷入口 + 菜单「AI 助手」，聊天式界面，流式输出、随时停止、长按复制
@@ -61,7 +69,7 @@
 - 广告与追踪域名拦截（内置规则表，可在设置中开关）
 - 夜间模式（优先系统算法暗色，旧内核自动回退反色注入）
 - 无图模式、无痕标签页（不记历史、不落缓存）
-- 阅读模式、页内查找、页内翻译入口
+- 阅读模式、页内查找
 - 记录浏览历史开关、清除缓存 / Cookie / 历史 / 全部数据
 
 **细节体验**
@@ -87,6 +95,14 @@
 - 首次启动会展示《用户协议》与《隐私政策》要点，需同意后才能使用（可随时在设置中查看）
 
 ## 更新日志
+
+**v1.0.7**
+- 新增网页翻译（必应翻译）：菜单「翻译」一键整页翻译，译文原位替换，可一键还原原文
+- 支持 15 种目标语言，设置页新增「翻译」分区，可切换目标语言
+- 新增划词翻译：读取网页中选中的文字并翻译，中文反译英文、外文译为中文，译文可复制
+- 新增翻译栏：实时显示翻译进度，可随时停止或点「原文」还原整页
+- 新增「自动翻译外语网页」开关（默认关闭）
+- 无需配置 API Key：通过微软 Edge 翻译凭据接口换取短期令牌，直接调用 Translator v3 文本接口
 
 **v1.0.6**
 - 全新主页 logo：黑白配色圆环 + 几何 Z 徽标，随主题黑 / 白反色
@@ -146,6 +162,8 @@ app/src/main/java/com/zorme/browser/
 ├── AiChatActivity.java   # AI 助手聊天页（流式输出、气泡界面）
 ├── AiClient.java          # OpenAI 兼容 Chat Completions 客户端（SSE）
 ├── AiProvider.java        # 内置 AI 服务商预设
+├── BingTranslate.java     # 必应翻译客户端（凭据换取、批量翻译、语言表）
+├── PageTranslator.java    # 整页翻译 / 划词翻译：正文切分、批量请求、译文回填与还原
 ├── ZWebView.java          # WebView 子类（长按检测、滚动监听）
 ├── BrowserTab.java        # 单个标签页状态
 ├── TabManager.java        # 标签管理
@@ -167,7 +185,7 @@ app/src/main/java/com/zorme/browser/
 ./gradlew testDebugUnitTest
 ```
 
-基于 Robolectric 的 62 个单元测试，覆盖：Activity 启动、菜单 / 标签 / 地址栏交互、内置弹窗行为（无系统弹窗断言、长文本滚动全文）、自定义 UA 应用、intent 链接回退地址提取、SSL 证书解析（含真实站点握手）、标签预览生成与回收、首次启动协议确认（同意 / 拒绝 / 已同意）、更新加速站拼接、网络日志记录与上限、启动主页修复回归、AI 服务商预设与 OpenAI 协议请求体 / SSE 解析、版本号比较等。
+基于 Robolectric 的 79 个单元测试，覆盖：Activity 启动、菜单 / 标签 / 地址栏交互、内置弹窗行为（无系统弹窗断言、长文本滚动全文）、自定义 UA 应用、intent 链接回退地址提取、SSL 证书解析（含真实站点握手）、标签预览生成与回收、首次启动协议确认（同意 / 拒绝 / 已同意）、更新加速站拼接、网络日志记录与上限、启动主页修复回归、AI 服务商预设与 OpenAI 协议请求体 / SSE 解析、必应翻译凭据解析 / 分段合批与逐段回退 / 译文回填与还原脚本、翻译入口与目标语言设置、版本号比较等。
 
 ## 说明
 

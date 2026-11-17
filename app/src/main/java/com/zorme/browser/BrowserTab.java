@@ -13,6 +13,10 @@ public class BrowserTab {
     public String url = "";
     public boolean showingHome = true;
     public boolean errorPage = false;
+    /** 当前页面是否已整页翻译（用于菜单显示"原文 / 翻译"） */
+    public boolean translated = false;
+    /** 本页是否已尝试过自动翻译，避免重复请求 */
+    public boolean autoTranslateTried = false;
     /** 标签管理界面显示的页面截图（视口内容） */
     public Bitmap preview;
 

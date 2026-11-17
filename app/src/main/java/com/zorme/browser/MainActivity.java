@@ -87,10 +87,11 @@ public class MainActivity extends AppCompatActivity {
     private View homeView;
     private LinearLayout errorView;
     private View progressBar;
-    private LinearLayout findBar, bottomBar;
+    private LinearLayout findBar, bottomBar, translateBar;
     private ImageView btnBack, btnForward, addressIcon, addressAction, btnMenu;
     private View btnTabs;
     private TextView addressTitle, tabCount, findCount, menuTitle, menuSubtitle, homePrivacy, errorDesc;
+    private TextView translateStatus, translateRestore;
     private RecyclerView suggestionList, tabsRecycler;
     private EditText addressInput, findInput;
     private GridLayout menuGrid, shortcutGrid;
@@ -116,6 +117,9 @@ public class MainActivity extends AppCompatActivity {
     private String pendingUrl, pendingUa, pendingMime, pendingDisposition;
     private long pendingLength;
 
+    /** 当前正在进行的整页翻译任务（同一时刻只允许一个） */
+    private PageTranslator translator;
+
     private View customView;
     private WebChromeClient.CustomViewCallback customViewCallback;
     private FrameLayout fullscreenContainer;
@@ -138,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
         setupTabsOverlay();
         setupMenu();
         setupFindBar();
+        setupTranslateBar();
 
         restoreOrCreateTabs(savedInstanceState);
         handleIntent(getIntent());
@@ -159,6 +164,9 @@ public class MainActivity extends AppCompatActivity {
         errorDesc = findViewById(R.id.error_desc);
         progressBar = findViewById(R.id.progress_bar);
         findBar = findViewById(R.id.find_bar);
+        translateBar = findViewById(R.id.translate_bar);
+        translateStatus = findViewById(R.id.translate_status);
+        translateRestore = findViewById(R.id.translate_restore);
         bottomBar = findViewById(R.id.bottom_bar);
         btnBack = findViewById(R.id.btn_back);
         btnForward = findViewById(R.id.btn_forward);
@@ -370,6 +378,14 @@ public class MainActivity extends AppCompatActivity {
             if (t != null) t.webView.findNext(true);
         });
         findViewById(R.id.find_close).setOnClickListener(v -> hideFind());
+    }
+
+    private void setupTranslateBar() {
+        translateRestore.setOnClickListener(v -> restorePage());
+        findViewById(R.id.translate_close).setOnClickListener(v -> {
+            stopTranslator();
+            hideTranslateBar();
+        });
     }
 
     // ------------------------------------------------------------------
@@ -892,6 +908,10 @@ public class MainActivity extends AppCompatActivity {
             hideMenu();
             showFind();
         });
+        addMenuTile(R.drawable.ic_translate, "翻译", () -> {
+            hideMenu();
+            showTranslateSheet();
+        });
         addMenuTile(R.drawable.ic_reader, "阅读模式", () -> {
             hideMenu();
             readerMode();
@@ -1099,6 +1119,186 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 Utils.toast(this, "未能提取到正文");
             }
+        });
+    }
+
+    // ------------------------------------------------------------------
+    // 网页翻译（必应翻译）
+    // ------------------------------------------------------------------
+
+    private void showTranslateSheet() {
+        final BrowserTab t = current();
+        if (t == null || t.showingHome || t.webView == null || t.url == null || t.url.isEmpty()
+                || t.url.startsWith("about:") || t.url.startsWith("data:")) {
+            Utils.toast(this, "请先打开一个网页");
+            return;
+        }
+        List<String> items = new ArrayList<>();
+        items.add("翻译为" + BingTranslate.targetName(Prefs.translateTarget(this)));
+        items.add("选择目标语言…");
+        items.add("翻译选中文字");
+        if (t.translated) items.add("显示原文");
+        ZDialog.options(this, "翻译 · 必应", items.toArray(new String[0]), which -> {
+            switch (which) {
+                case 0:
+                    startTranslate(false);
+                    break;
+                case 1:
+                    chooseTranslateTarget(() -> startTranslate(false));
+                    break;
+                case 2:
+                    translateSelection();
+                    break;
+                default:
+                    restorePage();
+                    break;
+            }
+        });
+    }
+
+    private void chooseTranslateTarget(Runnable after) {
+        String[] names = new String[BingTranslate.LANGS.length];
+        int checked = 0;
+        String current = Prefs.translateTarget(this);
+        for (int i = 0; i < names.length; i++) {
+            names[i] = BingTranslate.LANGS[i].name;
+            if (BingTranslate.LANGS[i].code.equalsIgnoreCase(current)) checked = i;
+        }
+        ZDialog.choice(this, "翻译目标语言", names, checked, which -> {
+            Prefs.setTranslateTarget(this, BingTranslate.LANGS[which].code);
+            Utils.toast(this, "目标语言已设为" + names[which]);
+            if (after != null) after.run();
+        });
+    }
+
+    /** 整页翻译；quiet 为 true 时用于自动翻译，出错只轻提示 */
+    private void startTranslate(boolean quiet) {
+        final BrowserTab t = current();
+        if (t == null || t.showingHome || t.webView == null) {
+            if (!quiet) Utils.toast(this, "请先打开一个网页");
+            return;
+        }
+        stopTranslator();
+        t.translated = false;
+        final String target = Prefs.translateTarget(this);
+        translator = new PageTranslator(t.webView, target);
+        showTranslateBar(getString(R.string.translate_running), false);
+        translator.start(new PageTranslator.Listener() {
+            @Override
+            public void onProgress(int done, int total) {
+                if (isFinishing()) return;
+                translateStatus.setText(getString(R.string.translate_progress_fmt, done, total));
+            }
+
+            @Override
+            public void onFinished(int count, int total) {
+                if (isFinishing()) return;
+                translator = null;
+                if (count <= 0) {
+                    hideTranslateBar();
+                    if (!quiet) Utils.toast(MainActivity.this, getString(R.string.translate_none));
+                    return;
+                }
+                t.translated = true;
+                translateStatus.setText(getString(R.string.translate_done_fmt,
+                        BingTranslate.targetName(target)));
+                translateRestore.setVisibility(View.VISIBLE);
+                if (!quiet) Utils.toast(MainActivity.this, "已翻译 " + count + " 段文字");
+            }
+
+            @Override
+            public void onError(String message) {
+                if (isFinishing()) return;
+                translator = null;
+                hideTranslateBar();
+                if (quiet) {
+                    Utils.toast(MainActivity.this, "自动翻译失败：" + message);
+                } else {
+                    ZDialog.alert(MainActivity.this, getString(R.string.translate_failed),
+                            message == null ? "请稍后重试" : message);
+                }
+            }
+        });
+    }
+
+    /** 划词翻译：读取网页中选中的文字并翻译 */
+    private void translateSelection() {
+        final BrowserTab t = current();
+        if (t == null || t.showingHome) {
+            Utils.toast(this, "请先打开一个网页");
+            return;
+        }
+        PageTranslator.selectedText(t.webView, text -> {
+            if (isFinishing()) return;
+            if (text == null || text.trim().isEmpty()) {
+                Utils.toast(MainActivity.this, getString(R.string.translate_empty_selection));
+                return;
+            }
+            final String src = text.length() > 3000 ? text.substring(0, 3000) : text;
+            final String to = BingTranslate.selectionTarget(src, Prefs.translateTarget(this));
+            ZDialog.toast(MainActivity.this, "正在翻译…");
+            new Thread(() -> {
+                BingTranslate.Result result = BingTranslate.translateOne(src, "", to);
+                runOnUiThread(() -> {
+                    if (isFinishing()) return;
+                    if (!result.ok) {
+                        ZDialog.alert(MainActivity.this, getString(R.string.translate_failed),
+                                result.error);
+                        return;
+                    }
+                    String out = result.texts.isEmpty() ? "" : result.texts.get(0);
+                    ZDialog.confirm(MainActivity.this,
+                            "翻译 · " + BingTranslate.targetName(to), out,
+                            getString(R.string.translate_copy),
+                            () -> Utils.copy(MainActivity.this, out));
+                });
+            }, "zorme-translate-one").start();
+        });
+    }
+
+    private void restorePage() {
+        BrowserTab t = current();
+        stopTranslator();
+        if (t != null) {
+            PageTranslator.restore(t.webView);
+            t.translated = false;
+        }
+        hideTranslateBar();
+        Utils.toast(this, "已显示原文");
+    }
+
+    private void showTranslateBar(String status, boolean canRestore) {
+        translateStatus.setText(status);
+        translateRestore.setVisibility(canRestore ? View.VISIBLE : View.GONE);
+        translateBar.setVisibility(View.VISIBLE);
+    }
+
+    private void hideTranslateBar() {
+        translateBar.setVisibility(View.GONE);
+    }
+
+    private void stopTranslator() {
+        if (translator != null) {
+            translator.stop();
+            translator = null;
+        }
+    }
+
+    /** 自动翻译外语网页：仅当前标签、仅 http(s) 页面，每页只尝试一次 */
+    private void maybeAutoTranslate(BrowserTab tab) {
+        if (tab == null || tab.webView == null) return;
+        if (!Prefs.autoTranslate(this) || tab.translated || tab.autoTranslateTried) return;
+        String url = tab.url == null ? "" : tab.url;
+        if (!url.startsWith("http://") && !url.startsWith("https://")) return;
+        tab.autoTranslateTried = true;
+        final String target = Prefs.translateTarget(this);
+        PageTranslator.detectLanguage(tab.webView, lang -> {
+            if (isFinishing() || tab.translated) return;
+            // 识别不到语言时保持原样，避免误翻
+            if (lang == null || lang.trim().isEmpty()) return;
+            if (BingTranslate.sameLanguage(lang, target)) return;
+            if (tab != current()) return;
+            startTranslate(true);
         });
     }
 
@@ -1409,6 +1609,11 @@ public class MainActivity extends AppCompatActivity {
             hideFind();
             return;
         }
+        if (translateBar.getVisibility() == View.VISIBLE) {
+            stopTranslator();
+            hideTranslateBar();
+            return;
+        }
         BrowserTab t = current();
         if (t != null) {
             if (t.showingHome) {
@@ -1577,11 +1782,16 @@ public class MainActivity extends AppCompatActivity {
             BrowserTab tab = tabOf(view);
             if (tab == null) return;
             tab.errorPage = false;
+            // 新页面：翻译状态归零，正在进行的翻译任务中止
+            tab.translated = false;
+            tab.autoTranslateTried = false;
             if (url != null && !url.startsWith("about:")) {
                 tab.url = url;
                 tab.showingHome = false;
             }
             if (view == (current() == null ? null : current().webView)) {
+                stopTranslator();
+                hideTranslateBar();
                 errorView.setVisibility(View.GONE);
                 pageLoading = true;
                 setPageProgress(8);
@@ -1611,6 +1821,7 @@ public class MainActivity extends AppCompatActivity {
                 setPageProgress(100);
                 updateAllUi();
                 tabAdapter.notifyDataSetChanged();
+                maybeAutoTranslate(tab);
             }
             Session.save(MainActivity.this);
         }

@@ -38,6 +38,17 @@
     <string name="bookmark_removed">已移除书签</string>
     <string name="find_in_page">页内查找</string>
     <string name="reader_mode">阅读模式</string>
+    <string name="translate">翻译</string>
+    <string name="translate_running">正在翻译…</string>
+    <string name="translate_progress_fmt">正在翻译 %1$d/%2$d 段</string>
+    <string name="translate_done_fmt">已翻译为 %1$s · 必应翻译</string>
+    <string name="translate_original">原文</string>
+    <string name="translate_failed">翻译失败</string>
+    <string name="translate_none">当前页面没有可翻译的文字</string>
+    <string name="translate_empty_selection">请先在网页中长按选中文字</string>
+    <string name="translate_copy">复制译文</string>
+    <string name="translate_target">目标语言</string>
+    <string name="translate_service">翻译服务</string>
     <string name="night_mode">夜间模式</string>
     <string name="no_image_mode">无图模式</string>
     <string name="desktop_mode">桌面版网站</string>
@@ -62,7 +73,7 @@
     <string name="clear">清除</string>
     <string name="done">完成</string>
     <string name="about">关于 Zorme</string>
-    <string name="version">版本 1.0.0</string>
+    <string name="version">版本 1.0.7</string>
     <string name="setting_search_engine">搜索引擎</string>
     <string name="setting_homepage">主页</string>
     <string name="setting_appearance">外观</string>

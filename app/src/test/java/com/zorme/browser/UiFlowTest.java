@@ -48,7 +48,7 @@ public class UiFlowTest {
         a.findViewById(R.id.btn_menu).performClick();
         assertEquals(View.VISIBLE, a.findViewById(R.id.menu_overlay).getVisibility());
         GridLayout grid = a.findViewById(R.id.menu_grid);
-        assertEquals(16, grid.getChildCount());
+        assertEquals(17, grid.getChildCount());
 
         // 夜间模式开关（菜单首项为 AI 助手，夜间模式在 index 6）
         boolean before = Prefs.night(a);
