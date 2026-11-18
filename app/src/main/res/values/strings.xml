@@ -130,4 +130,7 @@
     <string name="site_settings">网站设置</string>
     <string name="exit">退出</string>
     <string name="open_in_browser">用其他浏览器打开</string>
+    <string name="userscript_title">油猴脚本</string>
+    <string name="userscript_add">添加油猴脚本</string>
+    <string name="userscript_empty">还没有安装脚本，点右上角 + 添加</string>
 </resources>

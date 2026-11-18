@@ -517,12 +517,19 @@
                     android:tint="@color/icon_muted" />
             </LinearLayout>
 
-            <GridLayout
-                android:id="@+id/menu_grid"
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/menu_pager"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:columnCount="4"
-                android:rowCount="4" />
+                android:layout_height="144dp"
+                android:overScrollMode="never" />
+
+            <LinearLayout
+                android:id="@+id/menu_dots"
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"

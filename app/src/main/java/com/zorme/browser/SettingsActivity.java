@@ -86,6 +86,12 @@ public class SettingsActivity extends AppCompatActivity {
                     if (!v) NetworkLog.clear();
                 });
 
+        addSection("油猴脚本");
+        addText("脚本管理", "安装 / 启用 / 停用油猴（userscript）脚本",
+                UserscriptStore.get(this).enabledCount() + " / "
+                        + UserscriptStore.get(this).all().size() + " 已启用",
+                () -> startActivity(new Intent(this, UserscriptActivity.class)));
+
         addSection("AI 助手");
         addText("AI 服务商", "内置配置 + 自定义，OpenAI 兼容协议",
                 aiProviderLabel(), this::chooseAiProvider);

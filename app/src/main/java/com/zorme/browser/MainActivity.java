@@ -53,6 +53,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewFeature;
 
@@ -94,7 +95,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView translateStatus, translateRestore;
     private RecyclerView suggestionList, tabsRecycler;
     private EditText addressInput, findInput;
-    private GridLayout menuGrid, shortcutGrid;
+    private ViewPager2 menuPager;
+    private LinearLayout menuDots, shortcutGrid;
     private FrameLayout addressOverlay, tabsOverlay, menuOverlay;
     private LinearLayout menuCard;
     private TextView tabsTitle, menuNewTab, menuNewIncognito;
@@ -184,7 +186,8 @@ public class MainActivity extends AppCompatActivity {
         tabsRecycler = findViewById(R.id.tabs_recycler);
         addressInput = findViewById(R.id.address_input);
         findInput = findViewById(R.id.find_input);
-        menuGrid = findViewById(R.id.menu_grid);
+        menuPager = findViewById(R.id.menu_pager);
+        menuDots = findViewById(R.id.menu_dots);
         shortcutGrid = findViewById(R.id.shortcut_grid);
         addressOverlay = findViewById(R.id.address_overlay);
         tabsOverlay = findViewById(R.id.tabs_overlay);
@@ -392,7 +395,8 @@ public class MainActivity extends AppCompatActivity {
     // 标签页
     // ------------------------------------------------------------------
 
-    private BrowserTab current() {
+    /** 当前标签页（包内可见，供油猴 XHR 回调定位 WebView） */
+    BrowserTab current() {
         return TabManager.get().current();
     }
 
@@ -849,7 +853,7 @@ public class MainActivity extends AppCompatActivity {
     private void showMenu() {
         hideKeyboard();
         BrowserTab t = current();
-        menuGrid.removeAllViews();
+        menuTiles.clear();
         if (t != null && !t.showingHome) {
             menuTitle.setText(t.displayTitle());
             menuSubtitle.setText((t.url.startsWith("https://") ? "安全连接 · " : "")
@@ -924,6 +928,10 @@ public class MainActivity extends AppCompatActivity {
             hideMenu();
             startActivity(new Intent(this, NetworkLogActivity.class));
         });
+        addMenuTile(R.drawable.ic_code, "油猴脚本", () -> {
+            hideMenu();
+            startActivity(new Intent(this, UserscriptActivity.class));
+        });
         addMenuTile(R.drawable.ic_lock, "网站证书", () -> {
             hideMenu();
             showSslInfo();
@@ -937,6 +945,10 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, SettingsActivity.class));
         });
 
+        menuPager.setAdapter(new MenuPagerAdapter());
+        setupMenuDots();
+        menuPager.setCurrentItem(0, false);
+
         menuOverlay.setVisibility(View.VISIBLE);
         menuShown = true;
         menuCard.setTranslationY(Utils.dp(this, 40));
@@ -949,16 +961,100 @@ public class MainActivity extends AppCompatActivity {
         menuOverlay.setVisibility(View.GONE);
     }
 
+    /** 每页两行、一行四个：菜单工具分页展示，左右滑动翻页 */
+    private static final int MENU_PER_PAGE = 8;
+
+    /** 菜单工具项：图标 + 文案 + 点击动作 */
+    private static class MenuTile {
+        final int icon;
+        final String label;
+        final Runnable action;
+
+        MenuTile(int icon, String label, Runnable action) {
+            this.icon = icon;
+            this.label = label;
+            this.action = action;
+        }
+    }
+
+    private final List<MenuTile> menuTiles = new ArrayList<>();
+
+    private class MenuPagerAdapter extends RecyclerView.Adapter<MenuPageHolder> {
+
+        @NonNull
+        @Override
+        public MenuPageHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            GridLayout page = (GridLayout) LayoutInflater.from(MainActivity.this)
+                    .inflate(R.layout.view_menu_page, parent, false);
+            return new MenuPageHolder(page);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull MenuPageHolder h, int position) {
+            h.grid.removeAllViews();
+            int from = position * MENU_PER_PAGE;
+            int to = Math.min(from + MENU_PER_PAGE, menuTiles.size());
+            for (int i = from; i < to; i++) {
+                MenuTile tile = menuTiles.get(i);
+                View v = LayoutInflater.from(MainActivity.this)
+                        .inflate(R.layout.item_menu_tile, h.grid, false);
+                ((ImageView) v.findViewById(R.id.menu_icon)).setImageResource(tile.icon);
+                ((TextView) v.findViewById(R.id.menu_label)).setText(tile.label);
+                GridLayout.LayoutParams lp = (GridLayout.LayoutParams) v.getLayoutParams();
+                lp.width = 0;
+                lp.height = Utils.dp(MainActivity.this, 68);
+                lp.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f);
+                lp.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f);
+                v.setLayoutParams(lp);
+                v.setOnClickListener(x -> tile.action.run());
+                h.grid.addView(v);
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return Math.max(1, (int) Math.ceil(menuTiles.size() / (double) MENU_PER_PAGE));
+        }
+    }
+
+    private static class MenuPageHolder extends RecyclerView.ViewHolder {
+        final GridLayout grid;
+
+        MenuPageHolder(@NonNull View itemView) {
+            super(itemView);
+            grid = (GridLayout) itemView;
+        }
+    }
+
+    private void setupMenuDots() {
+        int pages = Math.max(1, (int) Math.ceil(menuTiles.size() / (double) MENU_PER_PAGE));
+        menuDots.removeAllViews();
+        if (pages <= 1) return;
+        for (int i = 0; i < pages; i++) {
+            View dot = new View(this);
+            GradientDrawable bg = new GradientDrawable();
+            bg.setShape(GradientDrawable.OVAL);
+            bg.setColor(ContextCompat.getColor(this, i == 0 ? R.color.accent : R.color.divider));
+            dot.setBackground(bg);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(Utils.dp(this, 6), Utils.dp(this, 6));
+            lp.setMargins(Utils.dp(this, 4), 0, Utils.dp(this, 4), 0);
+            dot.setLayoutParams(lp);
+            menuDots.addView(dot);
+        }
+        menuPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                for (int i = 0; i < menuDots.getChildCount(); i++) {
+                    GradientDrawable bg = (GradientDrawable) menuDots.getChildAt(i).getBackground();
+                    bg.setColor(ContextCompat.getColor(MainActivity.this,
+                            i == position ? R.color.accent : R.color.divider));
+                }
+            }
+        });
+    }
+
     private void addMenuTile(int icon, String label, Runnable action) {
-        View v = LayoutInflater.from(this).inflate(R.layout.item_menu_tile, menuGrid, false);
-        ((ImageView) v.findViewById(R.id.menu_icon)).setImageResource(icon);
-        ((TextView) v.findViewById(R.id.menu_label)).setText(label);
-        GridLayout.LayoutParams lp = (GridLayout.LayoutParams) v.getLayoutParams();
-        lp.width = 0;
-        lp.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f);
-        v.setLayoutParams(lp);
-        v.setOnClickListener(x -> action.run());
-        menuGrid.addView(v);
+        menuTiles.add(new MenuTile(icon, label, action));
     }
 
     private void applyToAllTabs(boolean reload) {
@@ -1724,6 +1820,39 @@ public class MainActivity extends AppCompatActivity {
         public void toast(String msg) {
             runOnUiThread(() -> Utils.toast(MainActivity.this, msg));
         }
+
+        // ---------------- 油猴（GM_*）接口 ----------------
+
+        @JavascriptInterface
+        public void gmSet(String ns, String key, String value) {
+            if (ns == null || key == null) return;
+            UserscriptStore.get(MainActivity.this).gmSet(ns, key, value == null ? "" : value);
+        }
+
+        @JavascriptInterface
+        public void gmDelete(String ns, String key) {
+            if (ns == null || key == null) return;
+            UserscriptStore.get(MainActivity.this).gmDelete(ns, key);
+        }
+
+        @JavascriptInterface
+        public void gmXhr(String cbId, String detailsJson) {
+            if (cbId == null || detailsJson == null) return;
+            UserscriptInjector.handleXhr(MainActivity.this, cbId, detailsJson);
+        }
+
+        @JavascriptInterface
+        public void setClipboard(String text) {
+            runOnUiThread(() -> Utils.copy(MainActivity.this, text == null ? "" : text));
+        }
+
+        @JavascriptInterface
+        public void download(String url) {
+            runOnUiThread(() -> {
+                if (url == null || url.isEmpty()) return;
+                requestDownload(url, "", "", "", 0);
+            });
+        }
     }
 
     // ------------------------------------------------------------------
@@ -1789,6 +1918,10 @@ public class MainActivity extends AppCompatActivity {
                 tab.url = url;
                 tab.showingHome = false;
             }
+            // 油猴：document-start 脚本随页面启动注入
+            if (url != null && url.startsWith("http")) {
+                UserscriptInjector.inject(MainActivity.this, view, url, true);
+            }
             if (view == (current() == null ? null : current().webView)) {
                 stopTranslator();
                 hideTranslateBar();
@@ -1808,6 +1941,10 @@ public class MainActivity extends AppCompatActivity {
             if (title != null) tab.title = title;
             if (url != null && !url.startsWith("about:") && !url.startsWith("data:")) {
                 tab.url = url;
+            }
+            // 油猴：document-end / document-idle 脚本随页面完成注入
+            if (tab.url != null && tab.url.startsWith("http")) {
+                UserscriptInjector.inject(MainActivity.this, view, tab.url, false);
             }
             if (!tab.errorPage && !tab.incognito && Prefs.recordHistory(MainActivity.this)
                     && tab.url != null && tab.url.startsWith("http")) {
