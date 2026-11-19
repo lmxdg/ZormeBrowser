@@ -1002,10 +1002,13 @@ public class MainActivity extends AppCompatActivity {
                 ((ImageView) v.findViewById(R.id.menu_icon)).setImageResource(tile.icon);
                 ((TextView) v.findViewById(R.id.menu_label)).setText(tile.label);
                 GridLayout.LayoutParams lp = (GridLayout.LayoutParams) v.getLayoutParams();
+                // 行高不用 weight：GridLayout 在「固定/自适应行高 + 行权重」组合下
+                // 会把单元格拉伸到远超翻页区高度（按钮被拉得很长、第二行被挤出）。
+                // 行高固定、列宽用权重均分，两行 65dp×2 + 边距正好落在 144dp 翻页区内。
                 lp.width = 0;
-                lp.height = Utils.dp(MainActivity.this, 68);
+                lp.height = Utils.dp(MainActivity.this, 65);
                 lp.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f);
-                lp.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f);
+                lp.rowSpec = GridLayout.spec(GridLayout.UNDEFINED);
                 v.setLayoutParams(lp);
                 v.setOnClickListener(x -> tile.action.run());
                 h.grid.addView(v);
