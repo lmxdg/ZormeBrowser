@@ -106,6 +106,10 @@
 
 ## 更新日志
 
+**v1.1.6**
+- 修复 v1.1.5 启动闪退：主页快捷方式容器（shortcut_grid）字段被误声明为 LinearLayout，与布局中的 GridLayout 不一致，导致启动时 ClassCastException 立即崩溃，现已恢复正确类型
+- 单元测试同步更新以适配 1.1.5 的菜单分页结构（menu_pager），全部 79 个测试通过
+
 **v1.1.5**
 - 新增油猴脚本（userscript）支持：管理页安装 / 启用 / 停用 / 删除，支持粘贴代码或 `.user.js` 直链安装
 - 内置 GM_* API 垫片：数据存取（按脚本隔离、本地持久化）、`GM_xmlhttpRequest` 原生跨域请求、剪贴板、通知、新标签页等

@@ -265,17 +265,9 @@ public class Features105Test {
         MainActivity a = Robolectric.buildActivity(MainActivity.class).setup().get();
         ShadowLooper.idleMainLooper();
         a.findViewById(R.id.btn_menu).performClick();
-        GridLayout grid = a.findViewById(R.id.menu_grid);
-        assertEquals(17, grid.getChildCount());
-        boolean hasSource = false, hasNetlog = false;
-        for (int i = 0; i < grid.getChildCount(); i++) {
-            TextView label = grid.getChildAt(i).findViewById(R.id.menu_label);
-            String s = label.getText().toString();
-            if ("网页源码".equals(s)) hasSource = true;
-            if ("网络日志".equals(s)) hasNetlog = true;
-        }
-        assertTrue(hasSource);
-        assertTrue(hasNetlog);
+        java.util.List<String> labels = MenuTestHelper.labels(a);
+        assertTrue(labels.contains("网页源码"));
+        assertTrue(labels.contains("网络日志"));
     }
 
     /* ---------- 网页源码 ---------- */

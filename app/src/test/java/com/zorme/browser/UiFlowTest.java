@@ -44,20 +44,21 @@ public class UiFlowTest {
         MainActivity a = Robolectric.buildActivity(MainActivity.class).setup().get();
         ShadowLooper.idleMainLooper();
 
-        // 菜单
+        // 菜单（1.1.5 起为 ViewPager2 分页菜单，共 18 项，含新增「油猴脚本」）
         a.findViewById(R.id.btn_menu).performClick();
         assertEquals(View.VISIBLE, a.findViewById(R.id.menu_overlay).getVisibility());
-        GridLayout grid = a.findViewById(R.id.menu_grid);
-        assertEquals(17, grid.getChildCount());
+        java.util.List<String> labels = MenuTestHelper.labels(a);
+        assertEquals(18, labels.size());
+        assertTrue(labels.contains("油猴脚本"));
 
-        // 夜间模式开关（菜单首项为 AI 助手，夜间模式在 index 6）
+        // 夜间模式开关
         boolean before = Prefs.night(a);
-        grid.getChildAt(6).performClick();
+        assertTrue(MenuTestHelper.tap(a, before ? "日间" : "夜间"));
         assertEquals(View.GONE, a.findViewById(R.id.menu_overlay).getVisibility());
         assertEquals(!before, Prefs.night(a));
 
         a.findViewById(R.id.btn_menu).performClick();
-        grid.getChildAt(6).performClick();
+        assertTrue(MenuTestHelper.tap(a, before ? "夜间" : "日间"));
         assertEquals(before, Prefs.night(a));
 
         // 标签页
@@ -88,7 +89,7 @@ public class UiFlowTest {
 
         // 回到主页（菜单：0=AI 助手 1=刷新 2=主页）
         a.findViewById(R.id.btn_menu).performClick();
-        grid.getChildAt(2).performClick();
+        assertTrue(MenuTestHelper.tap(a, "主页"));
         assertEquals(View.VISIBLE, a.findViewById(R.id.home_view).getVisibility());
     }
 }

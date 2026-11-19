@@ -96,7 +96,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView suggestionList, tabsRecycler;
     private EditText addressInput, findInput;
     private ViewPager2 menuPager;
-    private LinearLayout menuDots, shortcutGrid;
+    private LinearLayout menuDots;
+    private GridLayout shortcutGrid;
     private FrameLayout addressOverlay, tabsOverlay, menuOverlay;
     private LinearLayout menuCard;
     private TextView tabsTitle, menuNewTab, menuNewIncognito;

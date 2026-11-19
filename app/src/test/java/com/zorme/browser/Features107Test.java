@@ -279,18 +279,7 @@ public class Features107Test {
         a.findViewById(R.id.btn_menu).performClick();
         ShadowLooper.idleMainLooper();
 
-        GridLayout grid = a.findViewById(R.id.menu_grid);
-        View tile = null;
-        for (int i = 0; i < grid.getChildCount(); i++) {
-            View item = grid.getChildAt(i);
-            TextView label = item.findViewById(R.id.menu_label);
-            if (label != null && "翻译".contentEquals(label.getText())) {
-                tile = item;
-                break;
-            }
-        }
-        assertNotNull("菜单应新增「翻译」入口", tile);
-        tile.performClick();
+        assertTrue("菜单应新增「翻译」入口", MenuTestHelper.tap(a, "翻译"));
         ShadowLooper.idleMainLooper();
 
         assertEquals("翻译 · 必应",
